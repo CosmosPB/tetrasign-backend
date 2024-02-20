@@ -7,6 +7,16 @@ public static class ConfigurationEndpoint
 {
     public static RouteGroupBuilder MapConfigurationApi(this RouteGroupBuilder group)
     {
+        group.MapGet("/", GetConfigurations)
+            .Produces<List<ConfigurationDTO>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status500InternalServerError)
+            .WithName("GetConfigurations")
+            .WithSummary("An endpoint to get all configurations")
+            .WithDescription("An endpoint to get all configuratios")
+            .WithOpenApi();
+
         group.MapGet("/{id}", GetConfiguration)
             .Produces<ConfigurationDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
@@ -29,6 +39,13 @@ public static class ConfigurationEndpoint
             .WithOpenApi();
 
         return group;
+    }
+
+    static async Task<IResult> GetConfigurations(IConfigurationService configuration_service)
+    {
+        // logger.LogInformation("{userId} - MSProducts.ProductsEndpoints.GetAllProducts", userId);
+        IEnumerable<ConfigurationDTO> configurations = await configuration_service.Find();
+        return TypedResults.Ok(configurations);
     }
 
     static async Task<IResult> GetConfiguration(string id, IConfigurationService configuration_service)

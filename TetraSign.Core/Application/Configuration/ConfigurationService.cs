@@ -19,6 +19,13 @@ public class ConfigurationService: IConfigurationService {
         this.mapper = mapper;
     }
 
+    public async Task<IEnumerable<ConfigurationDTO>> Find() {
+
+        IEnumerable<DomainConfiguration.Configuration> configuration = await configuration_repository.Find();
+
+        return mapper.Map<IEnumerable<ConfigurationDTO>>(configuration);
+    }
+
     public async Task<ConfigurationDTO> FindById(string id) {
 
         DomainConfiguration.Configuration configuration = await configuration_repository.FindById(id) 
@@ -71,7 +78,7 @@ public class ConfigurationService: IConfigurationService {
             new_configuration_paths
         );
 
-        // await configuration_repository.Add(new_configuration);
+        await configuration_repository.Add(new_configuration);
 
         return mapper.Map<DomainConfiguration.Configuration, ConfigurationDTO>(new_configuration);
     }
