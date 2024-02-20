@@ -1,0 +1,26 @@
+services:
+    tetrasign:
+        build: .
+        container_name: cas-tetrasign
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+        ports:
+            - "55510:5000"
+        depends_on:
+            - mongodb
+        networks:
+            - cas-network
+    mongodb:
+        image: mongo:latest
+        container_name: cas-mongodb
+        ports:
+            - '27017:27017'
+        volumes:
+            - cas-mongodb:/data/db
+        networks:
+            - cas-network
+volumes:
+    cas-mongodb:
+networks:
+    cas-network:
+        driver: bridge

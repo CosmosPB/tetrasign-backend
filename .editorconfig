@@ -1,0 +1,3 @@
+dotnet_naming_rule.everything_else_naming.symbols = everything_else
+dotnet_naming_rule.everything_else_naming.style = camel_case_style
+dotnet_naming_rule.everything_else_naming.severity = suggestion
