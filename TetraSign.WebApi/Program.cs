@@ -5,7 +5,7 @@
 // using Microsoft.Identity.Web;
 // using Microsoft.Identity.Web.Resource;
 
-using System.Reflection;
+// using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
@@ -54,6 +54,12 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 });
+builder.Services.AddCors(options => options.AddPolicy("Policy", builder => {
+    builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader();
+}));
 
 // Add services to the container.
 // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -79,6 +85,7 @@ if (app.Environment.IsDevelopment() || isSwaggerEnabledFromConfig)
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseCors("Policy");
 
 app.MapGroup(API_V1_CONFIGURATION).MapConfigurationApi()
     .WithGroupName(DOCS_V1)
