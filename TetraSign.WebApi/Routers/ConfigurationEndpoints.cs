@@ -38,7 +38,7 @@ public static class ConfigurationEndpoint
             .WithDescription("An endpoint to create a configuration")
             .WithOpenApi();
 
-        group.MapPost("/{id}", PutConfiguration)
+        group.MapPut("/{id}", PutConfiguration)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden)
