@@ -13,4 +13,6 @@ public class ConfigurationSunatEndpoints {
         
         return configuration_sunat_endpoints;
     }
+
+    public virtual void ChangeDespatchAdviceUrl(string? despatch_advice_url) => this.despatch_advice_url = despatch_advice_url;
 }

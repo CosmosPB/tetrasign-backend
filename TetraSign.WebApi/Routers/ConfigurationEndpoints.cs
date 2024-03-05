@@ -38,6 +38,17 @@ public static class ConfigurationEndpoint
             .WithDescription("An endpoint to create a configuration")
             .WithOpenApi();
 
+        group.MapPost("/{id}", PutConfiguration)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status500InternalServerError)
+            .Accepts<ConfigurationDTO>("application/json")
+            .WithName("PutConfiguration")
+            .WithSummary("An endpoint to update a configuration")
+            .WithDescription("An endpoint to update a configuration")
+            .WithOpenApi();
+
         return group;
     }
 
@@ -59,6 +70,13 @@ public static class ConfigurationEndpoint
     {
         // logger.LogInformation("{userId} - MSProducts.ProductsEndpoints.GetAllProducts", userId);
         ConfigurationDTO new_configuration = await configuration_service.Add(configuration);
-        return TypedResults.Ok(new_configuration);
+        return TypedResults.Created(new_configuration.id);
+    }
+
+    static async Task<IResult> PutConfiguration(ConfigurationDTO configuration, IConfigurationService configuration_service)
+    {
+        // logger.LogInformation("{userId} - MSProducts.ProductsEndpoints.GetAllProducts", userId);
+        await configuration_service.Update(configuration);
+        return TypedResults.NoContent();
     }
 }

@@ -82,4 +82,62 @@ public class ConfigurationService: IConfigurationService {
 
         return mapper.Map<DomainConfiguration.Configuration, ConfigurationDTO>(new_configuration);
     }
+
+    public async Task Update(ConfigurationDTO configuration) {
+
+        if (string.IsNullOrEmpty(configuration.id))
+                throw new Exception("Id can't be empty");
+
+        DomainConfiguration.Configuration _configuration = await configuration_repository.FindById(configuration.id) ?? throw new Exception("No such configuration exists");
+
+        DomainConfiguration.ConfigurationSunatAuthentication configuration_sunat_authentication = _configuration.configuration_sunat_authentication ?? DomainConfiguration.ConfigurationSunatAuthentication.Create(
+            configuration.configuration_sunat_authentication.grant_type,
+            configuration.configuration_sunat_authentication.scope,
+            configuration.configuration_sunat_authentication.client_id,
+            configuration.configuration_sunat_authentication.client_secret,
+            configuration.configuration_sunat_authentication.username,
+            configuration.configuration_sunat_authentication.password
+        );
+        configuration_sunat_authentication.ChangeGrantType(configuration.configuration_sunat_authentication.grant_type);
+        configuration_sunat_authentication.ChangeScope(configuration.configuration_sunat_authentication.scope);
+        configuration_sunat_authentication.ChangeClientId(configuration.configuration_sunat_authentication.client_id);
+        configuration_sunat_authentication.ChangeClientSecret(configuration.configuration_sunat_authentication.client_secret);
+        configuration_sunat_authentication.ChangeUsername(configuration.configuration_sunat_authentication.username);
+        configuration_sunat_authentication.ChangePassword(configuration.configuration_sunat_authentication.password);
+
+        DomainConfiguration.ConfigurationSunatEndpoints configuration_sunat_endpoints = _configuration.configuration_sunat_endpoints ?? DomainConfiguration.ConfigurationSunatEndpoints.Create(
+            configuration.configuration_sunat_endpoints.despatch_advice_url
+        );
+        configuration_sunat_endpoints.ChangeDespatchAdviceUrl(configuration.configuration_sunat_endpoints.despatch_advice_url);
+
+        DomainConfiguration.ConfigurationPaths configuration_paths = _configuration.configuration_paths ?? DomainConfiguration.ConfigurationPaths.Create(
+            configuration.configuration_paths.certificate,
+            configuration.configuration_paths.certificate_password,
+            configuration.configuration_paths.input,
+            configuration.configuration_paths.output,
+            configuration.configuration_paths.despatch_advice_template
+        );
+        configuration_paths.ChangeCertificate(configuration.configuration_paths.certificate);
+        configuration_paths.ChangeCertificatePassword(configuration.configuration_paths.certificate_password);
+        configuration_paths.ChangeInput(configuration.configuration_paths.input);
+        configuration_paths.ChangeOutput(configuration.configuration_paths.output);
+        configuration_paths.ChangeDespatchAdviceTemplate(configuration.configuration_paths.despatch_advice_template);
+
+        _configuration.ChangeId(configuration.id);
+        _configuration.ChangePartyIdentification(configuration.party_identification);
+        _configuration.ChangePartyName(configuration.party_name);
+        _configuration.ChangeRegistrationName(configuration.registration_name);
+        _configuration.ChangeAddressTypeCode(configuration.address_type_code);
+        _configuration.ChangeCitySubdivisionName(configuration.city_subdivision_name);
+        _configuration.ChangeCityName(configuration.city_name);
+        _configuration.ChangeCountrySubentity(configuration.country_subentity);
+        _configuration.ChangeDistrict(configuration.district);
+        _configuration.ChangeAddressLine(configuration.address_line);
+        _configuration.ChangeIdentificationCode(configuration.identification_code);
+        _configuration.ChangeConfigurationSunatAuthentication(configuration_sunat_authentication);
+        _configuration.ChangeConfigurationSunatEndpoints(configuration_sunat_endpoints);
+        _configuration.ChangeConfigurationPaths(configuration_paths);
+
+        await configuration_repository.Update(_configuration);
+    }
 }
