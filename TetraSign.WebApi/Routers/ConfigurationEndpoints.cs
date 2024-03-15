@@ -1,5 +1,4 @@
 using TetraSign.Core.Application.Configuration;
-using TetraSign.Core.Helpers;
 
 namespace TetraSign.WebApi.Routers;
 

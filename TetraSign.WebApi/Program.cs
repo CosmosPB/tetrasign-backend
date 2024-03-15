@@ -17,6 +17,7 @@ using TetraSign.Core.Infraestructure;
 using TetraSign.WebApi.Routers;
 
 string API_V1_CONFIGURATION = "/api/v1/configuration";
+string API_V1_DOCUMENTS = "/api/v1/documents";
 string DOCS_V1 = "docs v1";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -89,7 +90,11 @@ app.UseCors("Policy");
 
 app.MapGroup(API_V1_CONFIGURATION).MapConfigurationApi()
     .WithGroupName(DOCS_V1)
-    .WithTags("Products");
+    .WithTags("Configuration");
+
+app.MapGroup(API_V1_DOCUMENTS).MapDocumentsApi()
+    .WithGroupName(DOCS_V1)
+    .WithTags("Documents");
 
 // var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 // var summaries = new[]
