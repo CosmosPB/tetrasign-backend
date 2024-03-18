@@ -101,4 +101,8 @@ public class DocumentsService: IDocumentsService {
 
         return mapper.Map<Document<DespatchAdvice>, DocumentDTO<DespatchAdviceDTO>>(new_document);
     }
+
+    public async Task DeleteDespatchAdvice(string id) {
+        await despatch_advice_repository.Remove(id);
+    }
 }

@@ -8,6 +8,7 @@ using MongoDB.Bson.IO;
 using TetraSign.Core.Application.Documents;
 using TetraSign.Core.Application.Documents.ThirdPartyDocuments;
 using TetraSign.Core.Application.Documents.ThirdPartyDocuments.JSON;
+using TetraSign.Core.Domain.Documents;
 
 namespace TetraSign.WebApi.Routers;
 
@@ -37,6 +38,16 @@ public static class DocumentsEndpoint
             .WithDescription("An endpoint to get all despatch advices")
             .WithOpenApi();
 
+        group.MapDelete("/despatch-advices/{id}", DeleteDespatchAdvices)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status500InternalServerError)
+            .WithName("DeleteDespatchAdvices")
+            .WithSummary("An endpoint to delete a despatch advices")
+            .WithDescription("An endpoint to delete a despatch advices")
+            .WithOpenApi();
+
         return group;
     }
 
@@ -47,8 +58,6 @@ public static class DocumentsEndpoint
             using var reader = new StreamReader(file.OpenReadStream());
             string filedata = await reader.ReadToEndAsync();
 
-            // string utfString = Encoding.UTF8.GetString(filedata, 0, filedata.Length);
-            // var a = JsonSerializer.Deserialize<>(utfString);
             DespatchAdviceJSON despatch_advice_json = JsonSerializer.Deserialize<DespatchAdviceJSON>(filedata);
             if (despatch_advice_json == null) continue;
             string[] metadata = file.FileName.Split("-");
@@ -99,7 +108,7 @@ public static class DocumentsEndpoint
                 despatch_advice_json.customizationId
             );
 
-            DocumentDTO<DespatchAdviceDTO> document_dto = new DocumentDTO<DespatchAdviceDTO>(
+            DocumentDTO<DespatchAdviceDTO> document_dto = new(
                 null,
                 document_id,
                 document_type,
@@ -110,7 +119,7 @@ public static class DocumentsEndpoint
                 despatch_advice_dto,
                 file.FileName,
                 file.FileName.Split(".")[1],
-                "Pending",
+                DocumentState.Unprocessed.ToString(),
                 null,
                 null
             );
@@ -125,5 +134,12 @@ public static class DocumentsEndpoint
         // logger.LogInformation("{userId} - MSProducts.ProductsEndpoints.GetAllProducts", userId);
         IEnumerable<DocumentDTO<DespatchAdviceDTO>> documents = await documents_service.FindDespatchAdvice();
         return TypedResults.Ok(documents);
+    }
+
+    static async Task<IResult> DeleteDespatchAdvices([FromRoute]string id, IDocumentsService documents_service)
+    {
+        // logger.LogInformation("{userId} - MSProducts.ProductsEndpoints.GetAllProducts", userId);
+        await documents_service.DeleteDespatchAdvice(id);
+        return TypedResults.NoContent();
     }
 }
