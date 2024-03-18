@@ -11,13 +11,12 @@ public class Document<TEntity>: IAggregateRoot {
     public virtual string? id { get; protected set; }
     public virtual string? document_id { get; protected set; }
     public virtual string? document_type { get; protected set; }
-    public virtual string? issue_date { get; protected set; }
-    public virtual string? upload_date { get; protected set; }
-    public virtual string? sign_date { get; protected set; }
-    public virtual string? send_date { get; protected set; }
+    public virtual DateTime issue_date { get; protected set; }
+    public virtual DateTime upload_date { get; protected set; }
+    public virtual DateTime? sign_date { get; protected set; }
+    public virtual DateTime? send_date { get; protected set; }
     public virtual TEntity? data { get; protected set; }
     public virtual string? filename { get; protected set; }
-    public virtual string? full_path { get; protected set; }
     public virtual string? extension { get; protected set; }
     public virtual string? state { get; protected set; }
     public virtual string? observation { get; protected set; }
@@ -26,13 +25,12 @@ public class Document<TEntity>: IAggregateRoot {
     public static Document<TEntity> Create(
         string? document_id,
         string? document_type,
-        string? issue_date,
-        string? upload_date,
-        string? sign_date,
-        string? send_date,
+        DateTime issue_date,
+        DateTime upload_date,
+        DateTime? sign_date,
+        DateTime? send_date,
         TEntity? data,
         string? filename,
-        string? full_path,
         string? extension,
         string? state,
         string? observation,
@@ -47,7 +45,6 @@ public class Document<TEntity>: IAggregateRoot {
             send_date = send_date,
             data = data,
             filename = filename,
-            full_path = full_path,
             extension = extension,
             state = state,
             observation = observation,

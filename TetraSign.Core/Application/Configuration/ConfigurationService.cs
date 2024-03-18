@@ -1,5 +1,6 @@
 using AutoMapper;
 using TetraSign.Core.Helpers;
+using TetraSign.Core.Helpers.Database;
 using TetraSign.Core.Infraestructure;
 using DomainConfiguration = TetraSign.Core.Domain.Configuration;
 
@@ -8,11 +9,11 @@ namespace TetraSign.Core.Application.Configuration;
 public class ConfigurationService: IConfigurationService {
 
 
-    private readonly IRepository<DomainConfiguration.Configuration, TetraSignDatabaseSettings> configuration_repository;
+    private readonly IRepository<DomainConfiguration.Configuration, ConfigurationDBSettings> configuration_repository;
     private readonly IMapper mapper;
 
     public ConfigurationService(
-        IRepository<DomainConfiguration.Configuration, TetraSignDatabaseSettings> configuration_repository,
+        IRepository<DomainConfiguration.Configuration, ConfigurationDBSettings> configuration_repository,
         IMapper mapper
     ) {
         this.configuration_repository = configuration_repository;

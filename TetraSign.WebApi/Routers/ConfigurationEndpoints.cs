@@ -13,7 +13,7 @@ public static class ConfigurationEndpoint
             .Produces(StatusCodes.Status500InternalServerError)
             .WithName("GetConfigurations")
             .WithSummary("An endpoint to get all configurations")
-            .WithDescription("An endpoint to get all configuratios")
+            .WithDescription("An endpoint to get all configurations")
             .WithOpenApi();
 
         group.MapGet("/{id}", GetConfiguration)

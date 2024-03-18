@@ -1,5 +1,3 @@
-using TetraSign.Core.Helpers;
-
 namespace TetraSign.Core.Application.Configuration;
 
 public interface IConfigurationService {

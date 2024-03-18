@@ -1,6 +1,10 @@
 using AutoMapper;
 using TetraSign.Core.Application.Configuration;
+using TetraSign.Core.Application.Documents;
+using TetraSign.Core.Application.Documents.ThirdPartyDocuments;
+using TetraSign.Core.Domain.Documents.ThirdPartyDocuments;
 using DomainConfiguration = TetraSign.Core.Domain.Configuration;
+using DomainDocuments = TetraSign.Core.Domain.Documents;
 
 namespace TetraSign.Core.Application;
 
@@ -12,6 +16,10 @@ public class Map: Profile
         CreateMap<DomainConfiguration.ConfigurationSunatAuthentication, ConfigurationSunatAuthenticationDTO>();
         CreateMap<DomainConfiguration.ConfigurationSunatEndpoints, ConfigurationSunatEndpointsDTO>();
         CreateMap<DomainConfiguration.ConfigurationPaths, ConfigurationPathsDTO>();
+        CreateMap<DomainDocuments.Document<DespatchAdvice>, DocumentDTO<DespatchAdviceDTO>>();
+        CreateMap<DespatchAdvice, DespatchAdviceDTO>();
+        CreateMap<DespatchAdviceLine, DespatchAdviceLineDTO>();
+        CreateMap<ThirdPartyDocument, ThirdPartyDocumentDTO>();
         // CreateMap<ConfigurationDTO, DomainConfiguration.Configuration>();
         // Mapper.CreateMap<CartProduct, CartProductDto>();
 

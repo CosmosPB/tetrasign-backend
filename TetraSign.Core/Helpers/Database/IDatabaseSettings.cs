@@ -1,4 +1,4 @@
-namespace TetraSign.Core.Helpers;
+namespace TetraSign.Core.Helpers.Database;
 
 public interface IDatabaseSettings
 {

@@ -1,6 +1,6 @@
-namespace TetraSign.Core.Helpers;
+namespace TetraSign.Core.Helpers.Database;
 
-public class TetraSignDatabaseSettings: IDatabaseSettings
+public class DatabaseSettings: IDatabaseSettings
 {
     public string ConnectionString { get; set; } = null!;
     public string DatabaseName { get; set; } = null!;

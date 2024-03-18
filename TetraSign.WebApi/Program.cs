@@ -11,8 +11,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Models;
 using TetraSign.Core.Application;
 using TetraSign.Core.Application.Configuration;
+using TetraSign.Core.Application.Documents;
 using TetraSign.Core.Domain.Configuration;
-using TetraSign.Core.Helpers;
+using TetraSign.Core.Domain.Documents;
+using TetraSign.Core.Domain.Documents.ThirdPartyDocuments;
+using TetraSign.Core.Helpers.Database;
 using TetraSign.Core.Infraestructure;
 using TetraSign.WebApi.Routers;
 
@@ -21,10 +24,13 @@ string API_V1_DOCUMENTS = "/api/v1/documents";
 string DOCS_V1 = "docs v1";
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-builder.Services.Configure<TetraSignDatabaseSettings>(builder.Configuration.GetSection("TetraSignDatabase"));
+builder.Services.Configure<ConfigurationDBSettings>(builder.Configuration.GetSection("ConfigurationDatabase"));
+builder.Services.Configure<DocumentsDBSettings>(builder.Configuration.GetSection("DocumentsDatabase"));
 // builder.Services.AddSingleton<IDatabaseSettings, TetraSignDatabaseSettings>();
-builder.Services.AddSingleton<IRepository<Configuration, TetraSignDatabaseSettings>, MongoRepository<Configuration, TetraSignDatabaseSettings>>();
+builder.Services.AddSingleton<IRepository<Configuration, ConfigurationDBSettings>, MongoRepository<Configuration, ConfigurationDBSettings>>();
+builder.Services.AddSingleton<IRepository<Document<DespatchAdvice>, DocumentsDBSettings>, MongoRepository<Document<DespatchAdvice>, DocumentsDBSettings>>();
 builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
+builder.Services.AddSingleton<IDocumentsService, DocumentsService>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new Map()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x => {

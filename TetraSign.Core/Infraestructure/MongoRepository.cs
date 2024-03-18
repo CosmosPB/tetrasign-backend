@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using TetraSign.Core.Domain;
-using TetraSign.Core.Helpers;
-using TetraSign.Core.Infraestructure;
+using TetraSign.Core.Helpers.Database;
 
 namespace  TetraSign.Core.Infraestructure;
 

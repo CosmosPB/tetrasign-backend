@@ -1,5 +1,5 @@
 using TetraSign.Core.Domain;
-using TetraSign.Core.Helpers;
+using TetraSign.Core.Helpers.Database;
 
 namespace TetraSign.Core.Infraestructure;
 
