@@ -1,4 +1,4 @@
-namespace TetraSign.Core.Application.Documents.ThirdPartyDocuments;
+namespace TetraSign.Core.Application.Documents.ThirdPartyDocuments.JSON;
 
 public record DespatchAdviceLineJSON(
     string uniMedidaItem,

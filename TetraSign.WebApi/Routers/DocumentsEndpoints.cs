@@ -53,79 +53,17 @@ public static class DocumentsEndpoint
 
     static async Task<IResult> UploadDocuments([FromForm]IFormFileCollection files, IDocumentsService documents_service)
     {
+        Dictionary<string, DespatchAdviceJSON> despatch_advices_json = new();
         foreach (IFormFile file in files)
         {
             using var reader = new StreamReader(file.OpenReadStream());
             string filedata = await reader.ReadToEndAsync();
 
-            DespatchAdviceJSON despatch_advice_json = JsonSerializer.Deserialize<DespatchAdviceJSON>(filedata);
+            DespatchAdviceJSON? despatch_advice_json = JsonSerializer.Deserialize<DespatchAdviceJSON>(filedata);
             if (despatch_advice_json == null) continue;
-            string[] metadata = file.FileName.Split("-");
-            Console.WriteLine(file.FileName);
-            string identification_document_number = metadata[0];
-            string document_type = metadata[1];
-            string document_serial_number = metadata[2];
-            string document_number = metadata[3].Split(".")[0];
-            string document_id = $"{document_serial_number}-{document_number}";
-            List<DespatchAdviceLineDTO> despatch_advice_lines_dto = new();
-            foreach (var item in despatch_advice_json.detalle)
-            {
-                despatch_advice_lines_dto.Add(
-                    new DespatchAdviceLineDTO(
-                        item.uniMedidaItem,
-                        item.canItem,
-                        item.desItem,
-                        item.codItem
-                    )
-                );
-            }
-            DespatchAdviceDTO despatch_advice_dto = new(
-                despatch_advice_json.fecEmision,
-                despatch_advice_json.horEmision,
-                despatch_advice_json.tipDocGuia,
-                despatch_advice_json.serNumDocGuia,
-                despatch_advice_json.numDocDestinatario,
-                despatch_advice_json.tipDocDestinatario,
-                despatch_advice_json.rznSocialDestinatario,
-                despatch_advice_json.motTrasladoDatosEnvio,
-                despatch_advice_json.desMotivoTrasladoDatosEnvio,
-                despatch_advice_json.indTransbordoProgDatosEnvio,
-                despatch_advice_json.psoBrutoTotalBienesDatosEnvio,
-                despatch_advice_json.uniMedidaPesoBrutoDatosEnvio,
-                despatch_advice_json.numBultosDatosEnvio,
-                despatch_advice_json.modTrasladoDatosEnvio,
-                despatch_advice_json.fecInicioTrasladoDatosEnvio,
-                despatch_advice_json.numPlacaTransPrivado,
-                despatch_advice_json.numDocIdeConductorTransPrivado,
-                despatch_advice_json.tipDocIdeConductorTransPrivado,
-                despatch_advice_json.nomConductorTransPrivado,
-                despatch_advice_json.ubiLlegada,
-                despatch_advice_json.dirLlegada,
-                despatch_advice_json.ubiPartida,
-                despatch_advice_json.dirPartida,
-                despatch_advice_lines_dto,
-                despatch_advice_json.ublVersionId,
-                despatch_advice_json.customizationId
-            );
-
-            DocumentDTO<DespatchAdviceDTO> document_dto = new(
-                null,
-                document_id,
-                document_type,
-                despatch_advice_dto.issue_date.ToDateTime(despatch_advice_dto.issue_hours).ToUniversalTime(),
-                DateTime.UtcNow,
-                null,
-                null,
-                despatch_advice_dto,
-                file.FileName,
-                file.FileName.Split(".")[1],
-                DocumentState.Unprocessed.ToString(),
-                null,
-                null
-            );
-
-            await documents_service.AddDespatchAdvice(document_dto);
+            else despatch_advices_json.Add(file.FileName, despatch_advice_json);
         }
+        await documents_service.AddDocuments<DespatchAdviceJSON, DocumentDTO<DespatchAdviceDTO>>(despatch_advices_json);
         return TypedResults.NoContent();
     }
 
