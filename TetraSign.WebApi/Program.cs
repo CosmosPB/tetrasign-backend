@@ -14,10 +14,11 @@ using TetraSign.Core.Application.Configuration;
 using TetraSign.Core.Application.Documents;
 using TetraSign.Core.Domain.Configuration;
 using TetraSign.Core.Domain.Documents;
-using TetraSign.Core.Domain.Documents.ThirdPartyDocuments;
+using TetraSign.SDK.SignXML.ThirdPartyDocuments;
 using TetraSign.Core.Helpers.Database;
 using TetraSign.Core.Infraestructure;
 using TetraSign.WebApi.Routers;
+using MongoDB.Bson.Serialization;
 
 string API_V1_CONFIGURATION = "/api/v1/configuration";
 string API_V1_DOCUMENTS = "/api/v1/documents";
@@ -101,6 +102,13 @@ app.MapGroup(API_V1_CONFIGURATION).MapConfigurationApi()
 app.MapGroup(API_V1_DOCUMENTS).MapDocumentsApi()
     .WithGroupName(DOCS_V1)
     .WithTags("Documents");
+
+
+BsonClassMap.RegisterClassMap<DespatchAdvice>(classMap =>
+{
+     classMap.AutoMap();
+     classMap.SetIgnoreExtraElements(true);
+});
 
 // var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 // var summaries = new[]

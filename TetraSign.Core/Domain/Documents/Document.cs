@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace TetraSign.Core.Domain.Documents;
 
+[BsonIgnoreExtraElements]
 public class Document<TEntity>: IAggregateRoot {
 
     [BsonId]

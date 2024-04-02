@@ -90,39 +90,54 @@ public class ConfigurationService: IConfigurationService {
                 throw new Exception("Id can't be empty");
 
         DomainConfiguration.Configuration _configuration = await configuration_repository.FindById(configuration.id) ?? throw new Exception("No such configuration exists");
+        DomainConfiguration.ConfigurationSunatAuthentication configuration_sunat_authentication;
+        DomainConfiguration.ConfigurationSunatEndpoints configuration_sunat_endpoints;
+        DomainConfiguration.ConfigurationPaths configuration_paths;
 
-        DomainConfiguration.ConfigurationSunatAuthentication configuration_sunat_authentication = _configuration.configuration_sunat_authentication ?? DomainConfiguration.ConfigurationSunatAuthentication.Create(
-            configuration.configuration_sunat_authentication.grant_type,
-            configuration.configuration_sunat_authentication.scope,
-            configuration.configuration_sunat_authentication.client_id,
-            configuration.configuration_sunat_authentication.client_secret,
-            configuration.configuration_sunat_authentication.username,
-            configuration.configuration_sunat_authentication.password
-        );
-        configuration_sunat_authentication.ChangeGrantType(configuration.configuration_sunat_authentication.grant_type);
-        configuration_sunat_authentication.ChangeScope(configuration.configuration_sunat_authentication.scope);
-        configuration_sunat_authentication.ChangeClientId(configuration.configuration_sunat_authentication.client_id);
-        configuration_sunat_authentication.ChangeClientSecret(configuration.configuration_sunat_authentication.client_secret);
-        configuration_sunat_authentication.ChangeUsername(configuration.configuration_sunat_authentication.username);
-        configuration_sunat_authentication.ChangePassword(configuration.configuration_sunat_authentication.password);
+        if (_configuration.configuration_sunat_authentication != null) {
+            configuration_sunat_authentication = _configuration.configuration_sunat_authentication;
+            configuration_sunat_authentication.ChangeGrantType(configuration.configuration_sunat_authentication.grant_type);
+            configuration_sunat_authentication.ChangeScope(configuration.configuration_sunat_authentication.scope);
+            configuration_sunat_authentication.ChangeClientId(configuration.configuration_sunat_authentication.client_id);
+            configuration_sunat_authentication.ChangeClientSecret(configuration.configuration_sunat_authentication.client_secret);
+            configuration_sunat_authentication.ChangeUsername(configuration.configuration_sunat_authentication.username);
+            configuration_sunat_authentication.ChangePassword(configuration.configuration_sunat_authentication.password);
+        } else {
+            configuration_sunat_authentication = DomainConfiguration.ConfigurationSunatAuthentication.Create(
+                configuration.configuration_sunat_authentication.grant_type,
+                configuration.configuration_sunat_authentication.scope,
+                configuration.configuration_sunat_authentication.client_id,
+                configuration.configuration_sunat_authentication.client_secret,
+                configuration.configuration_sunat_authentication.username,
+                configuration.configuration_sunat_authentication.password
+            );
+        }
 
-        DomainConfiguration.ConfigurationSunatEndpoints configuration_sunat_endpoints = _configuration.configuration_sunat_endpoints ?? DomainConfiguration.ConfigurationSunatEndpoints.Create(
-            configuration.configuration_sunat_endpoints.despatch_advice_url
-        );
-        configuration_sunat_endpoints.ChangeDespatchAdviceUrl(configuration.configuration_sunat_endpoints.despatch_advice_url);
+        if (_configuration.configuration_sunat_endpoints != null) {
+            configuration_sunat_endpoints = _configuration.configuration_sunat_endpoints;
+            configuration_sunat_endpoints.ChangeDespatchAdviceUrl(configuration.configuration_sunat_endpoints.despatch_advice_url);
+        } else {
+            configuration_sunat_endpoints = DomainConfiguration.ConfigurationSunatEndpoints.Create(
+                configuration.configuration_sunat_endpoints.despatch_advice_url
+            );
+        }
 
-        DomainConfiguration.ConfigurationPaths configuration_paths = _configuration.configuration_paths ?? DomainConfiguration.ConfigurationPaths.Create(
-            configuration.configuration_paths.certificate,
-            configuration.configuration_paths.certificate_password,
-            configuration.configuration_paths.input,
-            configuration.configuration_paths.output,
-            configuration.configuration_paths.despatch_advice_template
-        );
-        configuration_paths.ChangeCertificate(configuration.configuration_paths.certificate);
-        configuration_paths.ChangeCertificatePassword(configuration.configuration_paths.certificate_password);
-        configuration_paths.ChangeInput(configuration.configuration_paths.input);
-        configuration_paths.ChangeOutput(configuration.configuration_paths.output);
-        configuration_paths.ChangeDespatchAdviceTemplate(configuration.configuration_paths.despatch_advice_template);
+        if (_configuration.configuration_paths != null) {
+            configuration_paths = _configuration.configuration_paths;
+            configuration_paths.ChangeCertificate(configuration.configuration_paths.certificate);
+            configuration_paths.ChangeCertificatePassword(configuration.configuration_paths.certificate_password);
+            configuration_paths.ChangeInput(configuration.configuration_paths.input);
+            configuration_paths.ChangeOutput(configuration.configuration_paths.output);
+            configuration_paths.ChangeDespatchAdviceTemplate(configuration.configuration_paths.despatch_advice_template);
+        } else {
+            configuration_paths = DomainConfiguration.ConfigurationPaths.Create(
+                configuration.configuration_paths.certificate,
+                configuration.configuration_paths.certificate_password,
+                configuration.configuration_paths.input,
+                configuration.configuration_paths.output,
+                configuration.configuration_paths.despatch_advice_template
+            );
+        }
 
         _configuration.ChangeId(configuration.id);
         _configuration.ChangePartyIdentification(configuration.party_identification);

@@ -1,14 +1,6 @@
-// using TetraSign.Core.Application.Configuration;
-// using TetraSign.Core.Helpers;
-
-using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson.IO;
 using TetraSign.Core.Application.Documents;
-using TetraSign.Core.Application.Documents.ThirdPartyDocuments;
-using TetraSign.Core.Application.Documents.ThirdPartyDocuments.JSON;
-using TetraSign.Core.Domain.Documents;
+using TetraSign.SDK.SignXML.ThirdPartyDocuments.DTO;
 
 namespace TetraSign.WebApi.Routers;
 
@@ -53,17 +45,14 @@ public static class DocumentsEndpoint
 
     static async Task<IResult> UploadDocuments([FromForm]IFormFileCollection files, IDocumentsService documents_service)
     {
-        Dictionary<string, DespatchAdviceJSON> despatch_advices_json = new();
+        Dictionary<string, string> documents = new();
         foreach (IFormFile file in files)
         {
             using var reader = new StreamReader(file.OpenReadStream());
             string filedata = await reader.ReadToEndAsync();
-
-            DespatchAdviceJSON? despatch_advice_json = JsonSerializer.Deserialize<DespatchAdviceJSON>(filedata);
-            if (despatch_advice_json == null) continue;
-            else despatch_advices_json.Add(file.FileName, despatch_advice_json);
+            documents.Add(file.FileName, filedata);
         }
-        await documents_service.AddDocuments<DespatchAdviceJSON, DocumentDTO<DespatchAdviceDTO>>(despatch_advices_json);
+        await documents_service.AddDocuments(documents); // AddDocuments<DespatchAdviceJSON, DocumentDTO<DespatchAdviceDTO>>
         return TypedResults.NoContent();
     }
 

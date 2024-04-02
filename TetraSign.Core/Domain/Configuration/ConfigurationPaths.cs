@@ -27,7 +27,7 @@ public class ConfigurationPaths {
     }
 
     public virtual void ChangeCertificate(string? certificate) => this.certificate = certificate;
-    public virtual void ChangeCertificatePassword(string? certificate_password) => this.certificate = certificate_password;
+    public virtual void ChangeCertificatePassword(string? certificate_password) => this.certificate_password = certificate_password;
     public virtual void ChangeInput(string? input) => this.input = input;
     public virtual void ChangeOutput(string? output) => this.output = output;
     public virtual void ChangeDespatchAdviceTemplate(string? despatch_advice_template) => this.despatch_advice_template = despatch_advice_template;

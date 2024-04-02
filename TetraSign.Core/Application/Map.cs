@@ -1,8 +1,8 @@
 using AutoMapper;
 using TetraSign.Core.Application.Configuration;
 using TetraSign.Core.Application.Documents;
-using TetraSign.Core.Application.Documents.ThirdPartyDocuments;
-using TetraSign.Core.Domain.Documents.ThirdPartyDocuments;
+using TetraSign.SDK.SignXML.ThirdPartyDocuments;
+using TetraSign.SDK.SignXML.ThirdPartyDocuments.DTO;
 using DomainConfiguration = TetraSign.Core.Domain.Configuration;
 using DomainDocuments = TetraSign.Core.Domain.Documents;
 

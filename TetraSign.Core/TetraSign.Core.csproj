@@ -11,5 +11,6 @@
     <!-- <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" /> -->
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.21.0" />
+    <PackageReference Include="TetraSign.SDK.SignXML" Version="1.1.0" />
   </ItemGroup>
 </Project>

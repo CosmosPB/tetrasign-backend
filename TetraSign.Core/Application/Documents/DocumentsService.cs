@@ -1,22 +1,28 @@
+using System.Text.Json;
 using AutoMapper;
-using TetraSign.Core.Application.Documents.ThirdPartyDocuments;
-using TetraSign.Core.Application.Documents.ThirdPartyDocuments.JSON;
 using TetraSign.Core.Domain.Documents;
-using TetraSign.Core.Domain.Documents.ThirdPartyDocuments;
+using TetraSign.SDK.SignXML;
+using TetraSign.SDK.SignXML.ThirdPartyDocuments;
+using TetraSign.SDK.SignXML.ThirdPartyDocuments.DTO;
+using TetraSign.SDK.SignXML.ThirdPartyDocuments.JSON;
 using TetraSign.Core.Helpers.Database;
 using TetraSign.Core.Infraestructure;
+using DomainConfiguration = TetraSign.Core.Domain.Configuration;
 
 namespace TetraSign.Core.Application.Documents;
 
 public class DocumentsService: IDocumentsService {
 
+    private readonly IRepository<DomainConfiguration.Configuration, ConfigurationDBSettings> configuration_repository;
     private readonly IRepository<Document<DespatchAdvice>, DocumentsDBSettings> despatch_advice_repository;
     private readonly IMapper mapper;
 
     public DocumentsService(
+        IRepository<DomainConfiguration.Configuration, ConfigurationDBSettings> configuration_repository,
         IRepository<Document<DespatchAdvice>, DocumentsDBSettings> despatch_advice_repository,
         IMapper mapper
     ) {
+        this.configuration_repository = configuration_repository;
         this.despatch_advice_repository = despatch_advice_repository;
         this.mapper = mapper;
     }
@@ -37,6 +43,10 @@ public class DocumentsService: IDocumentsService {
     }
 
     public async Task<DocumentDTO<DespatchAdviceDTO>> AddDespatchAdvice(DocumentDTO<DespatchAdviceDTO> document) {
+
+        IEnumerable<DomainConfiguration.Configuration> configurations = await configuration_repository.Find();
+        if (!configurations.Any()) throw new Exception("Could not find any settings");
+        DomainConfiguration.Configuration configuration = configurations.First();
 
         List<DespatchAdviceLine> despatch_advice_lines = new();
 
@@ -62,7 +72,6 @@ public class DocumentsService: IDocumentsService {
             document.data.business_name,
             document.data.transfer_reason_code,
             document.data.transfer_reason_description,
-            document.data.scheduled_transshipment,
             document.data.total_gross_weight,
             document.data.measurement_unit,
             document.data.quantity_packages,
@@ -72,11 +81,13 @@ public class DocumentsService: IDocumentsService {
             document.data.carriers_document_number,
             document.data.carriers_document_type,
             document.data.carrier_name,
+            document.data.carriers_licence_number,
             document.data.destination_ubigeo,
             document.data.destination_address,
             document.data.departure_ubigeo,
             document.data.departure_address,
             despatch_advice_lines,
+            document.data.observation,
             document.data.ubl_version_id,
             document.data.customization_id
         );
@@ -96,6 +107,24 @@ public class DocumentsService: IDocumentsService {
             document.ticket_id
         );
 
+        #nullable disable warnings
+        Dictionary<string, string> metadata = new() {
+            { "party_identification", configuration.party_identification },
+            { "party_name", configuration.party_name },
+            { "registration_name", configuration.registration_name },
+            { "certificate", configuration.configuration_paths.certificate },
+            { "certificate_password", configuration.configuration_paths.certificate_password },
+            { "output_path", configuration.configuration_paths.output }
+        };
+
+        SignXML.SignDespatchAdvice(
+            new_document.data,
+            new_document.document_id,
+            configuration.configuration_paths.despatch_advice_template,
+            new_document.filename.Split(".")[0],
+            metadata
+        );
+        #nullable enable warnings
         await despatch_advice_repository.Add(new_document);
 
         return mapper.Map<Document<DespatchAdvice>, DocumentDTO<DespatchAdviceDTO>>(new_document);
@@ -133,7 +162,6 @@ public class DocumentsService: IDocumentsService {
                 document.Value.cabecera.rznSocialDestinatario,
                 document.Value.cabecera.motTrasladoDatosEnvio,
                 document.Value.cabecera.desMotivoTrasladoDatosEnvio,
-                document.Value.cabecera.indTransbordoProgDatosEnvio,
                 document.Value.cabecera.psoBrutoTotalBienesDatosEnvio,
                 document.Value.cabecera.uniMedidaPesoBrutoDatosEnvio,
                 document.Value.cabecera.numBultosDatosEnvio,
@@ -143,11 +171,13 @@ public class DocumentsService: IDocumentsService {
                 document.Value.cabecera.numDocIdeConductorTransPrivado,
                 document.Value.cabecera.tipDocIdeConductorTransPrivado,
                 document.Value.cabecera.nomConductorTransPrivado,
+                document.Value.cabecera.numLicenciaTransPrivado,
                 document.Value.cabecera.ubiLlegada,
                 document.Value.cabecera.dirLlegada,
                 document.Value.cabecera.ubiPartida,
                 document.Value.cabecera.dirPartida,
                 despatch_advice_lines_dto,
+                document.Value.cabecera.obsGuia,
                 document.Value.cabecera.ublVersionId,
                 document.Value.cabecera.customizationId
             );
@@ -190,10 +220,41 @@ public class DocumentsService: IDocumentsService {
         }
 
         return result;
-        
         // return (T)(object)(new DespatchAdviceJSON)
         // IEnumerable<T>
-        
+    }
+
+    public async Task<IEnumerable<string>> AddDocuments(Dictionary<string, string> documents) {
+
+        List<string> result = new(); 
+        Dictionary<string, DespatchAdviceJSON> despatch_advices_json = new();
+
+        foreach (KeyValuePair<string, string> document in documents)
+        {
+            string[] metadata = document.Key.Split("-");
+            DocumentType document_type = DocumentType.Unknown;
+            if(metadata.Length > 1) {
+                bool parse_document_type = Enum.TryParse(metadata[1], out document_type);
+                if(!parse_document_type || document_type == DocumentType.Unknown) continue;
+            }
+            
+            switch (document_type) {
+                case DocumentType.DespatchAdvice:
+                    DespatchAdviceJSON? despatch_advice_json = JsonSerializer.Deserialize<DespatchAdviceJSON>(document.Value);
+                    if (despatch_advice_json == null) continue;
+                    else despatch_advices_json.Add(document.Key, despatch_advice_json);
+                break;
+                default:
+                break;
+            }
+        }
+
+        if(despatch_advices_json.Count > 0) {
+            IEnumerable<DocumentDTO<DespatchAdviceDTO>> despatch_advices = await AddDespatchAdvice(despatch_advices_json);
+            result.AddRange(despatch_advices.Select(x => x.document_id));
+        }
+
+        return result.AsEnumerable();        
     }
 
     public async Task DeleteDespatchAdvice(string id) {
