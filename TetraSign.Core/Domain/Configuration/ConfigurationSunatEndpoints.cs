@@ -2,7 +2,7 @@ namespace TetraSign.Core.Domain.Configuration;
 
 public class ConfigurationSunatEndpoints {
 
-    public string? despatch_advice_url { get; protected set; }
+    public string despatch_advice_url { get; protected set; }
 
     public static ConfigurationSunatEndpoints Create(
         string despatch_advice_url
@@ -14,5 +14,5 @@ public class ConfigurationSunatEndpoints {
         return configuration_sunat_endpoints;
     }
 
-    public virtual void ChangeDespatchAdviceUrl(string? despatch_advice_url) => this.despatch_advice_url = despatch_advice_url;
+    public virtual void ChangeDespatchAdviceUrl(string despatch_advice_url) => this.despatch_advice_url = despatch_advice_url;
 }

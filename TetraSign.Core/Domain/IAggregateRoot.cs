@@ -7,5 +7,5 @@ public interface IAggregateRoot
 {
     // [BsonId]
     // [BsonRepresentation(BsonType.ObjectId)]
-    string? id { get; }
+    string id { get; }
 }

@@ -9,33 +9,33 @@ public class Document<TEntity>: IAggregateRoot {
     [BsonId]
     [BsonElement("Id")]
     [BsonRepresentation(BsonType.ObjectId)]
-    public virtual string? id { get; protected set; }
-    public virtual string? document_id { get; protected set; }
-    public virtual string? document_type { get; protected set; }
+    public virtual string id { get; protected set; }
+    public virtual string document_id { get; protected set; }
+    public virtual string document_type { get; protected set; }
     public virtual DateTime issue_date { get; protected set; }
     public virtual DateTime upload_date { get; protected set; }
     public virtual DateTime? sign_date { get; protected set; }
     public virtual DateTime? send_date { get; protected set; }
-    public virtual TEntity? data { get; protected set; }
-    public virtual string? filename { get; protected set; }
-    public virtual string? extension { get; protected set; }
-    public virtual string? state { get; protected set; }
-    public virtual string? observation { get; protected set; }
-    public virtual string? ticket_id { get; protected set; }
+    public virtual TEntity data { get; protected set; }
+    public virtual string filename { get; protected set; }
+    public virtual string extension { get; protected set; }
+    public virtual string state { get; protected set; }
+    public virtual string observation { get; protected set; }
+    public virtual string ticket_id { get; protected set; }
 
     public static Document<TEntity> Create(
-        string? document_id,
-        string? document_type,
+        string document_id,
+        string document_type,
         DateTime issue_date,
         DateTime upload_date,
         DateTime? sign_date,
         DateTime? send_date,
-        TEntity? data,
-        string? filename,
-        string? extension,
-        string? state,
-        string? observation,
-        string? ticket_id
+        TEntity data,
+        string filename,
+        string extension,
+        string state,
+        string observation,
+        string ticket_id
     ) {
         Document<TEntity> document = new() {
             document_id = document_id,

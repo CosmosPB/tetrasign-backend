@@ -238,7 +238,7 @@ public class DocumentsService: IDocumentsService {
             
             switch (document_type) {
                 case DocumentType.DespatchAdvice:
-                    DespatchAdviceJSON? despatch_advice_json = JsonSerializer.Deserialize<DespatchAdviceJSON>(document.Value);
+                    DespatchAdviceJSON despatch_advice_json = JsonSerializer.Deserialize<DespatchAdviceJSON>(document.Value);
                     if (despatch_advice_json == null) continue;
                     else despatch_advices_json.Add(document.Key, despatch_advice_json);
                 break;

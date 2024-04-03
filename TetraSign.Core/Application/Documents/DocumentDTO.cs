@@ -1,7 +1,7 @@
 namespace TetraSign.Core.Application.Documents;
 
 public record DocumentDTO<TEntity>(
-    string? id,
+    string id,
     string document_id,
     string document_type,
     DateTime issue_date,
@@ -12,6 +12,6 @@ public record DocumentDTO<TEntity>(
     string filename,
     string extension,
     string state,
-    string? observation,
-    string? ticket_id
+    string observation,
+    string ticket_id
 );
