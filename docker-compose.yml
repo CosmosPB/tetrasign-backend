@@ -6,6 +6,8 @@ services:
             - ASPNETCORE_ENVIRONMENT=Development
         ports:
             - "55510:5000"
+        volumes:
+            - cas-tetrasign:/data/public
         depends_on:
             - mongodb
         networks:
@@ -20,6 +22,7 @@ services:
         networks:
             - cas-network
 volumes:
+    cas-tetrasign:
     cas-mongodb:
 networks:
     cas-network:

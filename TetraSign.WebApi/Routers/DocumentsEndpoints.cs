@@ -40,6 +40,17 @@ public static class DocumentsEndpoint
             .WithDescription("An endpoint to delete a despatch advices")
             .WithOpenApi();
 
+        group.MapPost("/send-sunat", SendSunat)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status500InternalServerError)
+            .Accepts<DocumentFilenamesDTO>("application/json")
+            .WithName("SendSunat")
+            .WithSummary("An endpoint to send documents to sunat")
+            .WithDescription("An endpoint to send documents to sunat")
+            .WithOpenApi();
+
         return group;
     }
 
@@ -67,6 +78,14 @@ public static class DocumentsEndpoint
     {
         // logger.LogInformation("{userId} - MSProducts.ProductsEndpoints.GetAllProducts", userId);
         await documents_service.DeleteDespatchAdvice(id);
+        return TypedResults.NoContent();
+    }
+
+    static async Task<IResult> SendSunat(DocumentFilenamesDTO documents, IDocumentsService documents_service)
+    {
+        // logger.LogInformation("{userId} - MSProducts.ProductsEndpoints.GetAllProducts", userId);
+        // ConfigurationDTO new_configuration = await configuration_service.Add(configuration);
+        await documents_service.SendSunat(documents.filenames);
         return TypedResults.NoContent();
     }
 }

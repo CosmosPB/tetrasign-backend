@@ -4,5 +4,6 @@ public enum DocumentState {
     Unprocessed = 0,
     Signed = 1,
     Dispatched = 2,
-    Rejected  = 3
+    Accepted = 3,
+    Rejected  = 4
 }

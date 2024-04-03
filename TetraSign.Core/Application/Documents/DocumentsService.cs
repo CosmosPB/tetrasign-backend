@@ -107,7 +107,6 @@ public class DocumentsService: IDocumentsService {
             document.ticket_id
         );
 
-        #nullable disable warnings
         Dictionary<string, string> metadata = new() {
             { "party_identification", configuration.party_identification },
             { "party_name", configuration.party_name },
@@ -124,7 +123,6 @@ public class DocumentsService: IDocumentsService {
             new_document.filename.Split(".")[0],
             metadata
         );
-        #nullable enable warnings
         await despatch_advice_repository.Add(new_document);
 
         return mapper.Map<Document<DespatchAdvice>, DocumentDTO<DespatchAdviceDTO>>(new_document);
@@ -259,5 +257,39 @@ public class DocumentsService: IDocumentsService {
 
     public async Task DeleteDespatchAdvice(string id) {
         await despatch_advice_repository.Remove(id);
+    }
+
+    public async Task SendSunat(Dictionary<string, string> filenames) {
+
+        IEnumerable<DomainConfiguration.Configuration> configurations = await configuration_repository.Find();
+        if (!configurations.Any()) throw new Exception("Could not find any settings");
+        DomainConfiguration.Configuration configuration = configurations.First();
+
+        foreach (KeyValuePair<string, string> filename in filenames)
+        {
+            string[] metadata = filename.Value.Split("-");
+            if(metadata.Length < 1) continue;
+            DocumentType document_type;
+            {
+                bool parse_document_type = Enum.TryParse(metadata[1], out document_type);
+                if(!parse_document_type || document_type == DocumentType.Unknown) continue;
+            }
+
+            switch (document_type) {
+                case DocumentType.DespatchAdvice:
+                    Document<DespatchAdvice> despatch_advice = await despatch_advice_repository.FindById(filename.Key);
+                    if (despatch_advice == null) continue;
+                    else {
+                        string filename_zip = filename.Value.Replace(".JSON", ".zip");
+                        (DocumentState, string) result = await SunatWebService.CallRestApi(configuration, filename_zip, $"{configuration.configuration_paths.output}/{filename_zip}", configuration.configuration_paths.output);
+                        despatch_advice.ChangeState(result.Item1.ToString());
+                        despatch_advice.ChangeTicketId(result.Item2);
+                        await despatch_advice_repository.Update(despatch_advice);
+                    }
+                break;
+                default:
+                break;
+            }
+        }
     }
 }
