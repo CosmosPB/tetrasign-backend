@@ -186,7 +186,7 @@ public class DocumentsService: IDocumentsService {
                 document_type,
                 despatch_advice_dto.issue_date.ToDateTime(despatch_advice_dto.issue_hours).ToUniversalTime(),
                 DateTime.UtcNow,
-                null,
+                DateTime.UtcNow,
                 null,
                 despatch_advice_dto,
                 document.Key,
@@ -281,9 +281,49 @@ public class DocumentsService: IDocumentsService {
                     if (despatch_advice == null) continue;
                     else {
                         string filename_zip = filename.Value.Replace(".JSON", ".zip");
-                        (DocumentState, string) result = await SunatWebService.CallRestApi(configuration, filename_zip, $"{configuration.configuration_paths.output}/{filename_zip}", configuration.configuration_paths.output);
+                        (DocumentState, string, string) result = await SunatWebService.CallRestApi(configuration, filename_zip, $"{configuration.configuration_paths.output}/{filename_zip}", configuration.configuration_paths.output);
+                        despatch_advice.ChangeSendDate(DateTime.UtcNow);
                         despatch_advice.ChangeState(result.Item1.ToString());
                         despatch_advice.ChangeTicketId(result.Item2);
+                        despatch_advice.ChangeObservation(result.Item3);
+                        await despatch_advice_repository.Update(despatch_advice);
+                    }
+                break;
+                default:
+                break;
+            }
+        }
+    }
+
+    public async Task CheckCDR(Dictionary<string, string> filenames) {
+
+        IEnumerable<DomainConfiguration.Configuration> configurations = await configuration_repository.Find();
+        if (!configurations.Any()) throw new Exception("Could not find any settings");
+        DomainConfiguration.Configuration configuration = configurations.First();
+
+        foreach (KeyValuePair<string, string> filename in filenames)
+        {
+            string[] metadata = filename.Value.Split("-");
+            if(metadata.Length < 1) continue;
+            DocumentType document_type;
+            {
+                bool parse_document_type = Enum.TryParse(metadata[1], out document_type);
+                if(!parse_document_type || document_type == DocumentType.Unknown) continue;
+            }
+
+            switch (document_type) {
+                case DocumentType.DespatchAdvice:
+                    Document<DespatchAdvice> despatch_advice = await despatch_advice_repository.FindById(filename.Key);
+                    if (despatch_advice == null || despatch_advice.state != DocumentState.Dispatched.ToString()) continue;
+                    else {
+                        string filename_zip = filename.Value.Replace(".JSON", ".zip");
+                        try {
+                            DocumentState result = SunatWebService.GetCDRFromRestApi(configuration, null, despatch_advice.ticket_id, filename_zip, configuration.configuration_paths.output);
+                            despatch_advice.ChangeState(result.ToString());
+                        } catch (Exception ex) {
+                            despatch_advice.ChangeState(DocumentState.Rejected.ToString());
+                            despatch_advice.ChangeObservation(ex.Message);
+                        }
                         await despatch_advice_repository.Update(despatch_advice);
                     }
                 break;

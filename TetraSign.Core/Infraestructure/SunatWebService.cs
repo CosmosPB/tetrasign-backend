@@ -10,16 +10,29 @@ namespace  TetraSign.Core.Infraestructure;
 
 public static class SunatWebService {
 
-    public static async Task<(DocumentState, string)> CallRestApi(Configuration configuration, string filename, string filename_path, string response_path) {
+    public static async Task<(DocumentState, string, string)> CallRestApi(Configuration configuration, string filename, string filename_path, string response_path) {
+        
+        string access_token;
+        DocumentState state;
+        string ticket = null;
+        string error_message = null;
 
-        string access_token = GetAccessToken(configuration);
-        string ticket = await SendDocument(configuration, access_token, filename, filename_path);
-        DocumentState state = GetCDRFromRestApi(configuration, access_token, ticket, filename, response_path);
+        try {
+            access_token = GetAccessToken(configuration);
+            ticket =await SendDocument(configuration, access_token, filename, filename_path);
+            state = GetCDRFromRestApi(configuration, access_token, ticket, filename, response_path);
+        } catch(Exception ex) {
+            state = DocumentState.ErrorDispatched;
+            error_message = ex.Message;
+        }
 
-        return (state, ticket);
+        return (state, ticket, error_message);
     }
 
     public static DocumentState GetCDRFromRestApi(Configuration configuration, string accessToken, string ticket, string filename, string response_path) {
+        
+        if (string.IsNullOrEmpty(accessToken)) accessToken = GetAccessToken(configuration);
+
         HttpClient client = new HttpClient();
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue($"Bearer", $"{accessToken}");
@@ -37,7 +50,7 @@ public static class SunatWebService {
         }
         else if (responseJson.codRespuesta == "98")
         {
-            return DocumentState.Rejected;
+            return DocumentState.Dispatched;
         }
         string message = responseJson.error.desError;
         throw new Exception(message);

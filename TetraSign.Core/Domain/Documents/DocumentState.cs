@@ -5,5 +5,6 @@ public enum DocumentState {
     Signed = 1,
     Dispatched = 2,
     Accepted = 3,
-    Rejected  = 4
+    Rejected  = 4,
+    ErrorDispatched = 5
 }

@@ -14,4 +14,5 @@ public interface IDocumentsService {
     Task<IEnumerable<string>> AddDocuments(Dictionary<string, string> documents);
     Task DeleteDespatchAdvice(string id);
     Task SendSunat(Dictionary<string, string> documents);
+    Task CheckCDR(Dictionary<string, string> documents);
 }

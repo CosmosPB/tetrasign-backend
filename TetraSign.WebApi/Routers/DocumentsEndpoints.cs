@@ -51,6 +51,17 @@ public static class DocumentsEndpoint
             .WithDescription("An endpoint to send documents to sunat")
             .WithOpenApi();
 
+        group.MapPost("/check-cdr", CheckCDR)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .Produces(StatusCodes.Status500InternalServerError)
+            .Accepts<DocumentFilenamesDTO>("application/json")
+            .WithName("CheckCDR")
+            .WithSummary("An endpoint to check cdr")
+            .WithDescription("An endpoint to check cdr")
+            .WithOpenApi();
+
         return group;
     }
 
@@ -86,6 +97,12 @@ public static class DocumentsEndpoint
         // logger.LogInformation("{userId} - MSProducts.ProductsEndpoints.GetAllProducts", userId);
         // ConfigurationDTO new_configuration = await configuration_service.Add(configuration);
         await documents_service.SendSunat(documents.filenames);
+        return TypedResults.NoContent();
+    }
+
+    static async Task<IResult> CheckCDR(DocumentFilenamesDTO documents, IDocumentsService documents_service) {
+
+        await documents_service.CheckCDR(documents.filenames);
         return TypedResults.NoContent();
     }
 }

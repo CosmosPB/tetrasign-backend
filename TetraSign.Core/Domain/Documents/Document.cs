@@ -55,6 +55,8 @@ public class Document<TEntity>: IAggregateRoot {
         return document;
     }
 
+    public virtual void ChangeSendDate(DateTime send_date) => this.send_date = send_date;
     public virtual void ChangeState(string state) => this.state = state;
     public virtual void ChangeTicketId(string ticket_id) => this.ticket_id = ticket_id;
+    public virtual void ChangeObservation(string observation) => this.observation = observation;
 }
